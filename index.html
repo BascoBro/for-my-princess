@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Memories</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            cursor: none;
+        }
+
+        /* Animated background */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 25%, #ffecd2 50%, #fcb69f 75%, #ff9a9e 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 10s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Custom cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ff6b9d;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            background: rgba(255, 107, 157, 0.2);
+        }
+
+        .cursor-trail {
+            width: 6px;
+            height: 6px;
+            background: #ff6b9d;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.7;
+        }
+
+        /* Initial button container */
+        .button-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .mystery-button {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            border: none;
+            border-radius: 50px;
+            padding: 25px 45px;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: white;
+            cursor: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(255, 107, 157, 0.4);
+            transition: all 0.3s ease;
+            font-family: 'Dancing Script', cursive;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .mystery-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .mystery-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 25px 50px rgba(255, 107, 157, 0.5);
+        }
+
+        .mystery-button:hover::before {
+            left: 100%;
+        }
+
+        /* Animated arrows - FIXED DIRECTIONS */
+        .arrow {
+            position: absolute;
+            color: #ff6b9d;
+            font-size: 3rem;
+            animation: arrowPulse 2s infinite;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+        }
+
+        .arrow-1 {
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: 0s;
+        }
+
+        .arrow-2 {
+            top: 50%;
+            right: -80px;
+            transform: translateY(-50%) rotate(90deg);
+            animation-delay: 0.3s;
+        }
+
+        .arrow-3 {
+            bottom: -80px;
+            left: 50%;
+            transform: translateX(-50%) rotate(180deg);
+            animation-delay: 0.6s;
+        }
+
+        .arrow-4 {
+            top: 50%;
+            left: -80px;
+            transform: translateY(-50%) rotate(-90deg);
+            animation-delay: 0.9s;
+        }
+
+        @keyframes arrowPulse {
+            0%, 100% { 
+                opacity: 0.4; 
+                transform: translateX(-50%) scale(1); 
+            }
+            50% { 
+                opacity: 1; 
+                transform: translateX(-50%) scale(1.3); 
+            }
+        }
+
+        /* Arrow direction fixes */
+        .arrow-2 {
+            transform: translateY(-50%) rotate(90deg);
+        }
+        .arrow-3 {
+            transform: translateX(-50%) rotate(180deg);
+        }
+        .arrow-4 {
+            transform: translateY(-50%) rotate(-90deg);
+        }
+
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* Canvas for particles */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Heart container */
+        .heart-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .heart-emoji {
+            font-size: 8rem;
+            cursor: none;
+            position: relative;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.6));
+            animation: heartGlow 2s infinite;
+        }
+
+        .heart-emoji:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.8));
+        }
+
+        @keyframes heartGlow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.6)); }
+            50% { filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.9)); }
+        }
+
+        /* Memory popup */
+        .memory-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            border-radius: 25px;
+            padding: 35px;
+            max-width: 500px;
+            width: 90%;
+            z-index: 1000;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 30px 60px rgba(255, 107, 157, 0.3);
+        }
+
+        .memory-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .memory-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 15px 35px rgba(255, 107, 157, 0.2);
+            border: 3px solid rgba(255, 107, 157, 0.2);
+        }
+
+        .memory-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #444;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .memory-date {
+            font-size: 1.1rem;
+            color: #ff6b9d;
+            font-weight: 600;
+            font-family: 'Dancing Script', cursive;
+            text-align: center;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: none;
+            color: #ff6b9d;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .close-button:hover {
+            color: #c44569;
+            transform: scale(1.2);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .mystery-button {
+                padding: 20px 35px;
+                font-size: 2rem;
+            }
+            
+            .arrow {
+                font-size: 2.5rem;
+            }
+            
+            .heart-emoji {
+                font-size: 6rem;
+            }
+            
+            .memory-popup {
+                padding: 25px;
+                max-width: 350px;
+            }
+            
+            .memory-image {
+                height: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mystery-button {
+                padding: 15px 30px;
+                font-size: 1.8rem;
+            }
+            
+            .heart-emoji {
+                font-size: 5rem;
+            }
+            
+            .memory-popup {
+                padding: 20px;
+                max-width: 300px;
+            }
+        }
+
+        /* Animations */
+        .fade-out {
+            opacity: 0 !important;
+            transform: translate(-50%, -50%) scale(0.8) !important;
+        }
+
+        .heart-click {
+            animation: heartBeat 0.6s ease;
+        }
+
+        @keyframes heartBeat {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            15% { transform: translate(-50%, -50%) scale(1.4); }
+            30% { transform: translate(-50%, -50%) scale(1.1); }
+            45% { transform: translate(-50%, -50%) scale(1.3); }
+            60% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Cursor hover states */
+        .cursor.hover {
+            transform: scale(1.8);
+            background: rgba(255, 107, 157, 0.4);
+            border-color: #c44569;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div>
+    <div class="cursor"></div>
+    <canvas id="particleCanvas"></canvas>
+    
+    <div class="button-container" id="buttonContainer">
+        <button class="mystery-button" id="mysteryButton">???</button>
+        <div class="arrow arrow-1">↓</div>
+        <div class="arrow arrow-2">←</div>
+        <div class="arrow arrow-3">↓</div>
+        <div class="arrow arrow-4">←</div>
+    </div>
+
+    <div class="heart-container" id="heartContainer">
+        <div class="heart-emoji" id="heartEmoji">💗</div>
+    </div>
+
+    <div class="memory-popup" id="memoryPopup">
+        <button class="close-button" id="closeButton">×</button>
+        <img class="memory-image" id="memoryImage" alt="Memory">
+        <div class="memory-text" id="memoryText"></div>
+        <div class="memory-date" id="memoryDate"></div>
+    </div>
+
+    <script>
+        // Memory data - Add your memories here
+        const memories = [
+            {
+                image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=500&h=300&fit=crop",
+                text: "The day we first met at the coffee shop. You were reading that book and I couldn't help but notice your beautiful smile. That moment changed everything for me.",
+                date: "March 15, 2023"
+            },
+            {
+                image: "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=500&h=300&fit=crop",
+                text: "Our first date at the beach. We talked for hours as the sun set, and I knew I wanted to spend every sunset with you from that moment on.",
+                date: "March 22, 2023"
+            },
+            {
+                image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=500&h=300&fit=crop",
+                text: "The rainy day when we got caught in the storm and laughed until our sides hurt. Dancing in the rain with you was pure magic.",
+                date: "April 10, 2023"
+            },
+            {
+                image: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=500&h=300&fit=crop",
+                text: "Our first 'I love you' under the stars. The way your eyes sparkled in the moonlight - I'll never forget that perfect moment.",
+                date: "May 5, 2023"
+            },
+            {
+                image: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=500&h=300&fit=crop",
+                text: "The day you surprised me with homemade cookies shaped like hearts. Your thoughtfulness always melts my heart.",
+                date: "June 14, 2023"
+            }
+        ];
+
+        // Particle system
+        class Particle {
+            constructor(x, y, vx, vy, color = '#ff6b9d', size = 3) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.color = color;
+                this.size = size;
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+                this.gravity = 0.05;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.life -= this.decay;
+                this.size *= 0.995;
+                this.vx *= 0.99;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Canvas setup
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let heartParticles = [];
+        let isHeartFormed = false;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Fixed custom cursor
+        const cursor = document.querySelector('.cursor');
+        const trailElements = [];
+
+        // Create cursor trail
+        for (let i = 0; i < 15; i++) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            document.body.appendChild(trail);
+            trailElements.push({
+                element: trail,
+                x: 0,
+                y: 0
+            });
+        }
+
+        let mouseX = 0, mouseY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function updateCursor() {
+            cursor.style.left = mouseX + 'px';
+            cursor.style.top = mouseY + 'px';
+
+            // Update trail with smooth following
+            trailElements.forEach((trail, index) => {
+                const targetX = mouseX - (index * 2);
+                const targetY = mouseY - (index * 2);
+                
+                trail.x += (targetX - trail.x) * 0.3;
+                trail.y += (targetY - trail.y) * 0.3;
+                
+                trail.element.style.left = trail.x + 'px';
+                trail.element.style.top = trail.y + 'px';
+                trail.element.style.opacity = (15 - index) / 15;
+            });
+
+            requestAnimationFrame(updateCursor);
+        }
+
+        updateCursor();
+
+        // Hover effects
+        const hoverElements = ['.mystery-button', '.heart-emoji', '.close-button'];
+        hoverElements.forEach(selector => {
+            document.addEventListener('mouseover', (e) => {
+                if (e.target.matches(selector)) {
+                    cursor.classList.add('hover');
+                }
+            });
+            
+            document.addEventListener('mouseout', (e) => {
+                if (e.target.matches(selector)) {
+                    cursor.classList.remove('hover');
+                }
+            });
+        });
+
+        // Button click handler
+        document.getElementById('mysteryButton').addEventListener('click', () => {
+            const buttonContainer = document.getElementById('buttonContainer');
+            buttonContainer.classList.add('fade-out');
+            
+            setTimeout(() => {
+                buttonContainer.style.display = 'none';
+                startParticleAnimation();
+            }, 800);
+        });
+
+        function startParticleAnimation() {
+            // Create MORE rising particles
+            for (let i = 0; i < 200; i++) {
+                setTimeout(() => {
+                    const colors = ['#ff6b9d', '#c44569', '#ff9a9e', '#fad0c4', '#ffecd2'];
+                    particles.push(new Particle(
+                        Math.random() * canvas.width,
+                        canvas.height + 50,
+                        (Math.random() - 0.5) * 4,
+                        -Math.random() * 6 - 3,
+                        colors[Math.floor(Math.random() * colors.length)],
+                        Math.random() * 4 + 2
+                    ));
+                }, i * 30);
+            }
+
+            setTimeout(() => {
+                formHeart();
+            }, 4000);
+        }
+
+        function formHeart() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Create heart outline particles
+            for (let t = 0; t < Math.PI * 2; t += 0.05) {
+                const x = centerX + 16 * Math.pow(Math.sin(t), 3) * 4;
+                const y = centerY - (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * 4;
+                
+                heartParticles.push(new Particle(
+                    x, y, 0, 0,
+                    '#ff6b9d',
+                    Math.random() * 3 + 2
+                ));
+            }
+
+            // Add MORE particles around heart
+            setTimeout(() => {
+                for (let i = 0; i < 300; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = Math.random() * 80;
+                    const x = centerX + Math.cos(angle) * radius;
+                    const y = centerY + Math.sin(angle) * radius;
+                    
+                    const colors = ['#ff6b9d', '#c44569', '#ff9a9e', '#ffecd2'];
+                    heartParticles.push(new Particle(
+                        x, y, 
+                        (Math.random() - 0.5) * 0.5,
+                        (Math.random() - 0.5) * 0.5,
+                        colors[Math.floor(Math.random() * colors.length)],
+                        Math.random() * 3 + 1
+                    ));
+                }
+                
+                isHeartFormed = true;
+                document.getElementById('heartContainer').style.opacity = '1';
+                
+                // Add continuous particles around heart
+                setInterval(addHeartParticles, 100);
+            }, 1500);
+        }
+
+        function addHeartParticles() {
+            if (!isHeartFormed) return;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            for (let i = 0; i < 5; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * 100 + 50;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                
+                particles.push(new Particle(
+                    x, y,
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2,
+                    '#ff6b9d',
+                    Math.random() * 2 + 1
+                ));
+            }
+        }
+
+        // Heart click handler
+        let currentMemoryIndex = 0;
+        document.getElementById('heartEmoji').addEventListener('click', () => {
+            // Heart beat animation
+            const heartContainer = document.getElementById('heartContainer');
+            heartContainer.classList.add('heart-click');
+            setTimeout(() => heartContainer.classList.remove('heart-click'), 600);
+
+            // MASSIVE particle explosion
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            for (let i = 0; i < 100; i++) {
+                const angle = (Math.PI * 2 * i) / 100;
+                const velocity = Math.random() * 15 + 5;
+                const colors = ['#ff6b9d', '#c44569', '#ff9a9e', '#fad0c4', '#ffecd2'];
+                
+                particles.push(new Particle(
+                    centerX + (Math.random() - 0.5) * 100,
+                    centerY + (Math.random() - 0.5) * 100,
+                    Math.cos(angle) * velocity,
+                    Math.sin(angle) * velocity,
+                    colors[Math.floor(Math.random() * colors.length)],
+                    Math.random() * 5 + 3
+                ));
+            }
+
+            // Show memory
+            showMemory(currentMemoryIndex);
+            currentMemoryIndex = (currentMemoryIndex + 1) % memories.length;
+        });
+
+        function showMemory(index) {
+            const popup = document.getElementById('memoryPopup');
+            const image = document.getElementById('memoryImage');
+            const text = document.getElementById('memoryText');
+            const date = document.getElementById('memoryDate');
+            
+            const memory = memories[index];
+            
+            image.src = memory.image;
+            text.textContent = memory.text;
+            date.textContent = memory.date;
+            
+            popup.classList.add('show');
+        }
+
+        // Close memory popup
+        document.getElementById('closeButton').addEventListener('click', () => {
+            document.getElementById('memoryPopup').classList.remove('show');
+        });
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Update and draw particles
+            particles = particles.filter(particle => {
+                particle.update();
+                particle.draw(ctx);
+                return particle.life > 0 && particle.size > 0.5;
+            });
+
+            // Draw heart particles
+            heartParticles.forEach(particle => {
+                particle.update();
+                particle.draw(ctx);
+            });
+
+            // Remove dead heart particles
+            heartParticles = heartParticles.filter(particle => particle.life > 0);
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
